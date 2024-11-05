@@ -66,26 +66,9 @@ class _MainScreenState extends State<MainScreen> {
           }
         });
         VideoHelper.cachedForUrl(vids[x].url);
-        //setState(() {});
-
-        // if (currentIndex == 0) {
-        //   controllers.forEach((e) {
-        //     if (e != null) {
-        //       e.pause();
-        //     }
-        //   });
-        //   if (controllers[currentIndex] != null) {
-        //     controllers[currentIndex]!.play();
-        //     controllers[currentIndex]!.addListener(() {
-        //       if (!mounted) return;
-        //       setState(() {});
-        //     });
-        //   }
-        // }
       } else {
         final file = fileInfo.file;
         VideoPlayerController controller = VideoPlayerController.file(file);
-        //controllers[x] = controller;
         controllers.add(controller);
 
         setState(() {});
@@ -97,26 +80,7 @@ class _MainScreenState extends State<MainScreen> {
             setState(() {});
           }
         });
-
-        //setState(() {});
-        // if (currentIndex == 0) {
-        //   controllers.forEach((e) {
-        //     if (e != null) {
-        //       e.pause();
-        //     }
-        //   });
-        //   if (controllers[currentIndex] != null) {
-        //     controllers[currentIndex]!.play();
-        //     controllers[currentIndex]!.addListener(() {
-        //       if (!mounted) return;
-        //       setState(() {});
-        //     });
-        //   }
-        // }
-        // setState(() {});
       }
-
-      //setState(() {});
     }
   }
 
@@ -133,11 +97,6 @@ class _MainScreenState extends State<MainScreen> {
             }
 
             if (state is DoneToFetchVideos1State) {
-              ToastClass.toast(
-                  context: context,
-                  data: "DoneToFetchVideos1State",
-                  seconds: 3);
-
               videos.addAll(state.videos);
               setState(() {});
               await initiateVideosController(vids: state.videos);
@@ -148,19 +107,13 @@ class _MainScreenState extends State<MainScreen> {
             if (controllers.isNotEmpty) {
               return PageView.builder(
                   scrollDirection: Axis.vertical,
-                  //controller: pageController,
-                  //physics: PageScrollPhysics(),
                   itemCount: videos.length,
                   onPageChanged: (i) {
-                    // previousPage = currentIndex;
-                    // controllers.
-
                     for (var e in controllers) {
                       if (e != null) {
                         e.pause();
                       }
                     }
-
                     setState(() {
                       currentIndex = i;
                     });

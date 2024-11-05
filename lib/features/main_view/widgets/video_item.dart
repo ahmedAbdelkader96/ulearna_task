@@ -32,7 +32,6 @@ class _VideoItemState extends State<VideoItem>
     with SingleTickerProviderStateMixin {
   late AnimationController controlPlayPauseButtonController;
 
-  //bool isPlaying = true;
   bool isLikeClicked = false;
   bool isControlsShown = false;
 
@@ -71,21 +70,7 @@ class _VideoItemState extends State<VideoItem>
         VideoPlayerWidget(
             videoPlayerController: widget.videoPlayerController,
             videoModel: widget.videoModel),
-        // Positioned(
-        //     top: 20,
-        //     child: Column(
-        //       children: [
-        //         Text(
-        //             'isInitialized : ' +
-        //                 widget.videoPlayerController.value.isInitialized
-        //                     .toString(),
-        //             style: TextStyle(color: Colors.white)),
-        //         Text(
-        //             'isPlaying : ' +
-        //                 widget.videoPlayerController.value.isPlaying.toString(),
-        //             style: TextStyle(color: Colors.white)),
-        //       ],
-        //     )),
+
         GestureDetector(
           onTap: () {
             setState(() {
