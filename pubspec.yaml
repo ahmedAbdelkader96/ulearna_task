@@ -31,7 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
   video_player: ^2.9.2
-  chewie: ^1.8.5
   flutter_cache_manager: ^3.3.0
   cached_network_image: ^3.4.1
   bloc: ^8.1.0
