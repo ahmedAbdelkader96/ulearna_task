@@ -82,20 +82,7 @@ class _VideoItemState extends State<VideoItem>
                   "Playback Error : This video format is not supported. Please try another video.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white))),
-        Positioned(
-            top: 30,
-            child: Column(
-              children: [
-                Text(
-                    "isInitialized : ${widget.videoPlayerController.value.isInitialized}",
-                    style: const TextStyle(color: Colors.white)),
-                Text(
-                    "isPlaying : ${widget.videoPlayerController.value.isPlaying}",
-                    style: const TextStyle(color: Colors.white)),
-                Text("VideohasError : ${widget.videoModel.id} ",
-                    style: const TextStyle(color: Colors.white)),
-              ],
-            )),
+
         GestureDetector(
           onTap: () {
             setState(() {
