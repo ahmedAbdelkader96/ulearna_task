@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:task/features/main_view/models/video_model.dart';
 import 'package:task/features/main_view/widgets/action_animated_button.dart';
+import 'package:task/features/main_view/widgets/comments_shares_likes_widget.dart';
 import 'package:task/features/main_view/widgets/loading_video_player.dart';
 import 'package:task/features/main_view/widgets/rewind_animated_button.dart';
+import 'package:task/features/main_view/widgets/user_details_and_follow_button_widget.dart';
 import 'package:task/global/methods_helpers_functions/media_query.dart';
 import 'package:task/global/methods_helpers_functions/video_helper.dart';
 import 'package:task/global/widgets/general_circular_raw_material_button.dart';
@@ -74,83 +76,89 @@ class _LoadingVideoWidgetState extends State<LoadingVideoWidget> {
         Positioned(
           bottom: MQuery.getheight(context, 100),
           right: MQuery.getWidth(context, 16),
-          child: Column(
-            children: [
-              ActionAnimatedButton(
-                firstWidget: const Icon(
-                  Icons.favorite,
-                  size: 32,
-                  color: Colors.red,
+          child: widget.video != null
+              ? CommentsSharesLikesWidget(videoModel: widget.video!)
+              : Column(
+                  children: [
+                    ActionAnimatedButton(
+                      firstWidget: const Icon(
+                        Icons.favorite,
+                        size: 32,
+                        color: Colors.red,
+                      ),
+                      secondWidget: Icon(
+                        Icons.favorite,
+                        size: 32,
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                    const ShimmerTextWidget(width: 40),
+                    const SizedBox(height: 10),
+                    const ActionAnimatedButton(
+                        firstWidget: Icon(
+                          Icons.comment,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        secondWidget: Icon(
+                          Icons.comment,
+                          color: Colors.white,
+                          size: 28,
+                        )),
+                    const ShimmerTextWidget(width: 40),
+                    const SizedBox(height: 10),
+                    const ActionAnimatedButton(
+                        firstWidget: Icon(
+                          Icons.send,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        secondWidget: Icon(
+                          Icons.send,
+                          color: Colors.white,
+                          size: 28,
+                        )),
+                    const ShimmerTextWidget(width: 40),
+                  ],
                 ),
-                secondWidget: Icon(
-                  Icons.favorite,
-                  size: 32,
-                  color: Colors.grey[300],
-                ),
-              ),
-              const ShimmerTextWidget(width: 40),
-              const SizedBox(height: 10),
-              const ActionAnimatedButton(
-                  firstWidget: Icon(
-                    Icons.comment,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  secondWidget: Icon(
-                    Icons.comment,
-                    color: Colors.white,
-                    size: 28,
-                  )),
-              const ShimmerTextWidget(width: 40),
-              const SizedBox(height: 10),
-              const ActionAnimatedButton(
-                  firstWidget: Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  secondWidget: Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 28,
-                  )),
-              const ShimmerTextWidget(width: 40),
-            ],
-          ),
         ),
         Positioned(
           bottom: 60,
           left: MQuery.getWidth(context, 16),
           right: 0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  ClipOval(
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey,
-                      highlightColor: Colors.white,
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: Colors.grey.withOpacity(0.4),
+          child: widget.video != null
+              ? UserDetailsAndFollowButtonWidget(
+                  videoModel: widget.video!,
+                  onPressedUserImageToNavigate: () {})
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        ClipOval(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey,
+                            highlightColor: Colors.white,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: Colors.grey.withOpacity(0.4),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        const ShimmerTextWidget(width: 130),
+                        const SizedBox(width: 10),
+                        const ShimmerTextWidget(width: 80),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const ShimmerTextWidget(width: 130),
-                  const SizedBox(width: 10),
-                  const ShimmerTextWidget(width: 80),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const ShimmerTextWidget(width: 110)
-            ],
-          ),
+                    const SizedBox(height: 8),
+                    const ShimmerTextWidget(width: 110)
+                  ],
+                ),
         ),
         Positioned(
           bottom: 0,

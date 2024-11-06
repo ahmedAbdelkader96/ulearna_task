@@ -14,7 +14,6 @@ class VideoItem extends StatefulWidget {
       {super.key,
       required this.videoPlayerController,
       required this.videoModel,
-      required this.index,
       required this.controllers});
 
   final VideoPlayerController videoPlayerController;
@@ -22,7 +21,6 @@ class VideoItem extends StatefulWidget {
   final List<VideoPlayerController?> controllers;
 
   final VideoModel videoModel;
-  final int index;
 
   @override
   State<VideoItem> createState() => _VideoItemState();
@@ -38,14 +36,8 @@ class _VideoItemState extends State<VideoItem>
   @override
   void initState() {
     super.initState();
+    playVideoController();
 
-    widget.videoPlayerController.play();
-
-    widget.videoPlayerController.addListener(() {
-      if (mounted) {
-        setState(() {});
-      }
-    });
     controlPlayPauseButtonController = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     Future.delayed(const Duration(milliseconds: 1), () {
@@ -53,6 +45,19 @@ class _VideoItemState extends State<VideoItem>
         isControlsShown = true;
       });
     });
+  }
+
+  playVideoController() {
+    try {
+      widget.videoPlayerController.play();
+      widget.videoPlayerController.addListener(() {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   @override
@@ -67,10 +72,30 @@ class _VideoItemState extends State<VideoItem>
       alignment: Alignment.center,
       fit: StackFit.expand,
       children: [
-        VideoPlayerWidget(
-            videoPlayerController: widget.videoPlayerController,
-            videoModel: widget.videoModel),
-
+        if (!widget.videoPlayerController.value.hasError)
+          VideoPlayerWidget(
+              videoPlayerController: widget.videoPlayerController,
+              videoModel: widget.videoModel),
+        if (widget.videoPlayerController.value.hasError)
+          const Center(
+              child: Text(
+                  "Playback Error : This video format is not supported. Please try another video.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white))),
+        Positioned(
+            top: 30,
+            child: Column(
+              children: [
+                Text(
+                    "isInitialized : ${widget.videoPlayerController.value.isInitialized}",
+                    style: const TextStyle(color: Colors.white)),
+                Text(
+                    "isPlaying : ${widget.videoPlayerController.value.isPlaying}",
+                    style: const TextStyle(color: Colors.white)),
+                Text("VideohasError : ${widget.videoModel.id} ",
+                    style: const TextStyle(color: Colors.white)),
+              ],
+            )),
         GestureDetector(
           onTap: () {
             setState(() {

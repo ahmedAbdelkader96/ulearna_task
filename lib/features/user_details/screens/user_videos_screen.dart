@@ -20,11 +20,11 @@ class UserVideosScreen extends StatefulWidget {
 }
 
 class _UserVideosScreenState extends State<UserVideosScreen> {
-  late PageController pageController =
-      PageController(initialPage: widget.pageIndex,keepPage: true,viewportFraction: 1);
+  late PageController pageController = PageController(
+      initialPage: widget.pageIndex, keepPage: true, viewportFraction: 1);
 
   late List<VideoPlayerController?> controllers = [];
-  late int currentIndex =  widget.pageIndex;
+  late int currentIndex = widget.pageIndex;
 
   @override
   void initState() {
@@ -37,81 +37,70 @@ class _UserVideosScreenState extends State<UserVideosScreen> {
       controllers.add(null);
     }
     setState(() {});
-     function0();
-     function1();
-     function2();
+    function0();
+    function1();
+    function2();
     setState(() {});
   }
 
   Future<void> function0() async {
-    await initiateVideoController(vid: widget.videos[widget.pageIndex], i: widget.pageIndex);
+    await initiateVideoController(
+        vid: widget.videos[widget.pageIndex], i: widget.pageIndex);
   }
+
   Future<void> function1() async {
     for (int x = widget.pageIndex - 1; x > 0; x--) {
       if (controllers[x] == null) {
         await initiateVideoController(vid: widget.videos[x], i: x);
-
       }
     }
   }
+
   Future<void> function2() async {
     for (int x = widget.pageIndex + 1; x < widget.videos.length; x++) {
       if (controllers[x] == null) {
-           await initiateVideoController(vid: widget.videos[x], i: x);
+        await initiateVideoController(vid: widget.videos[x], i: x);
       }
     }
   }
 
-
-
-
-  Future<void> initiateVideoController({required VideoModel vid , required int i}) async {
-        final fileInfo = await VideoHelper.checkCacheFor(vid.url);
-        if (fileInfo == null) {
-          VideoPlayerController controller =
+  Future<void> initiateVideoController(
+      {required VideoModel vid, required int i}) async {
+    final fileInfo = await VideoHelper.checkCacheFor(vid.url);
+    if (fileInfo == null) {
+      VideoPlayerController controller =
           VideoPlayerController.networkUrl(Uri.parse(vid.url));
-          controllers[i] = controller;
+
+      controllers[i] = controller;
+      setState(() {});
+
+      try {
+        await controller.initialize().then((e) {
           setState(() {});
-          await controllers[i]!.initialize();
+        });
+      } catch (e) {
+        debugPrint(e.toString());
+      }
 
+      VideoHelper.cachedForUrl(vid.url);
+      setState(() {});
+    } else {
+      final file = fileInfo.file;
+      VideoPlayerController controller = VideoPlayerController.file(file);
 
-          controllers[i]!.addListener((){
-            if(!mounted){
-              setState(() {});
-            }
-          });
-          VideoHelper.cachedForUrl(vid.url);
+      controllers[i] = controller;
+      setState(() {});
 
-        }
-        else {
-          final file = fileInfo.file;
-          VideoPlayerController controller = VideoPlayerController.file(file);
-          controllers[i] = controller;
+      try {
+        await controller.initialize().then((e) {
           setState(() {});
-
-          await controllers[i]!.initialize();
-
-
-          controllers[i]!.addListener((){
-            if(!mounted){
-              setState(() {});
-            }
-
-          });
-
-
-        }
-
-
-
+        });
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+      setState(() {});
+    }
   }
-
-
-
-
-
-
-
 
   @override
   void dispose() {
@@ -158,37 +147,36 @@ class _UserVideosScreenState extends State<UserVideosScreen> {
                 ],
               ),
             ),
+            Expanded(
+                child: PageView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: widget.videos.length,
+                    controller: pageController,
+                    onPageChanged: (i) {
+                      for (var e in controllers) {
+                        if (e != null) {
+                          e.pause();
+                        }
+                      }
 
-            Expanded(child:
-            PageView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: widget.videos.length,
-                controller: pageController,
-                onPageChanged: (i) {
-                  for (var e in controllers) {
-                    if (e != null) {
-                      e.pause();
-                    }
-                  }
-
-                  setState(() {
-                    currentIndex = i;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final video = widget.videos[index];
-                  VideoPlayerController? controller =
-                  (index >= 0 && index < controllers.length
-                      ? controllers[index]
-                      : null);
-                  if (controller != null && currentIndex == index) {
-                    return VideoItem(
-                        videoPlayerController: controller, videoModel: video,
-                    index: index, controllers: controllers);
-                  }
-                  return LoadingVideoWidget(video: video);
-                }))
-
+                      setState(() {
+                        currentIndex = i;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final video = widget.videos[index];
+                      VideoPlayerController? controller =
+                          (index >= 0 && index < controllers.length
+                              ? controllers[index]
+                              : null);
+                      if (controller != null && currentIndex == index) {
+                        return VideoItem(
+                            videoPlayerController: controller,
+                            videoModel: video,
+                            controllers: controllers);
+                      }
+                      return LoadingVideoWidget(video: video);
+                    }))
           ],
         ));
   }

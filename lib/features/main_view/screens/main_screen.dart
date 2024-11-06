@@ -21,17 +21,21 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int apiPageIndex = 2;
+  late int apiPageIndex;
+
   int currentIndex = 0;
   List<VideoModel> videos = [];
   VideoDatabaseHelper videoDatabaseHelper = VideoDatabaseHelper();
   late List<VideoPlayerController?> controllers = [];
+  List<bool> isLoadingForN10 = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    initiateVideosController(vids: widget.videos);
+    initiateVideosControllerN(vids: widget.videos, functionIndex: 0);
+    int apiPageIndexOld = widget.videos.length ~/ 10;
+    apiPageIndex = apiPageIndexOld;
   }
 
   @override
@@ -45,43 +49,55 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
-  Future<void> initiateVideosController(
-      {required List<VideoModel> vids}) async {
+  Future<void> initiateVideosControllerN(
+      {required List<VideoModel> vids, required int functionIndex}) async {
+    isLoadingForN10.add(true);
+
     videos.addAll(vids);
 
     setState(() {});
+
     for (int x = 0; x < vids.length; x++) {
       final fileInfo = await VideoHelper.checkCacheFor(vids[x].url);
       if (fileInfo == null) {
         VideoPlayerController controller =
             VideoPlayerController.networkUrl(Uri.parse(vids[x].url));
+
         controllers.add(controller);
         setState(() {});
 
-        await controllers[x]!.initialize();
-
-        controllers[x]!.addListener(() {
-          if (!mounted) {
+        try {
+          await controller.initialize().then((e) {
             setState(() {});
-          }
-        });
+          });
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+
         VideoHelper.cachedForUrl(vids[x].url);
+        setState(() {});
       } else {
         final file = fileInfo.file;
         VideoPlayerController controller = VideoPlayerController.file(file);
-        controllers.add(controller);
 
+        controllers.add(controller);
         setState(() {});
 
-        await controllers[x]!.initialize();
-
-        controllers[x]!.addListener(() {
-          if (!mounted) {
+        try {
+          await controller.initialize().then((e) {
             setState(() {});
-          }
-        });
+          });
+        } catch (e) {
+          debugPrint(e.toString());
+        }
+
+        setState(() {});
       }
     }
+
+    setState(() {
+      isLoadingForN10[functionIndex] = false;
+    });
   }
 
   @override
@@ -97,10 +113,10 @@ class _MainScreenState extends State<MainScreen> {
             }
 
             if (state is DoneToFetchVideos1State) {
-              videos.addAll(state.videos);
-              setState(() {});
-              await initiateVideosController(vids: state.videos);
+              await initiateVideosControllerN(
+                  vids: state.videos, functionIndex: 1);
               await videoDatabaseHelper.insertManyVideosToTable(state.videos);
+              setState(() {});
             }
           },
           builder: (context, state) {
@@ -108,23 +124,31 @@ class _MainScreenState extends State<MainScreen> {
               return PageView.builder(
                   scrollDirection: Axis.vertical,
                   itemCount: videos.length,
+                  physics: const BouncingScrollPhysics(),
                   onPageChanged: (i) {
                     for (var e in controllers) {
                       if (e != null) {
                         e.pause();
                       }
                     }
+
                     setState(() {
                       currentIndex = i;
                     });
 
-                    if (i == videos.length - 5) {
-                      setState(() {
-                        apiPageIndex++;
-                      });
-                      context
-                          .read<FetchVideosBloc>()
-                          .add(Fetch10Videos(pageIndex: apiPageIndex));
+                    bool? value = (i >= 0 && i < isLoadingForN10.length
+                        ? isLoadingForN10[i]
+                        : null);
+
+                    if (value == null) {
+                      if (i == videos.length - 5) {
+                        setState(() {
+                          apiPageIndex++;
+                        });
+                        context
+                            .read<FetchVideosBloc>()
+                            .add(Fetch10Videos(pageIndex: apiPageIndex));
+                      }
                     }
                   },
                   itemBuilder: (context, index) {
@@ -134,11 +158,12 @@ class _MainScreenState extends State<MainScreen> {
                             ? controllers[index]
                             : null);
 
-                    if (controller != null && currentIndex == index) {
+                    if (controller != null &&
+                        //controller.value.isInitialized &&
+                        currentIndex == index) {
                       return VideoItem(
                           videoPlayerController: controller,
                           videoModel: video,
-                          index: currentIndex,
                           controllers: controllers);
                     }
                     return LoadingVideoWidget(video: video);

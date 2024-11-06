@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CacheVideoImage extends StatelessWidget {
   const CacheVideoImage({super.key, required this.thumbUrl});
@@ -24,9 +25,19 @@ class CacheVideoImage extends StatelessWidget {
         );
       },
       placeholder: (c, s) {
-        return const Center(
-          child: CupertinoActivityIndicator(
-            color: Colors.grey,
+        return Center(
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey,
+              highlightColor: Colors.white,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.grey.withOpacity(0.3),
+                ),
+              ),
+            ),
           ),
         );
       },
